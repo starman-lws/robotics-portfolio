@@ -40,7 +40,7 @@ $$
 末端旋转矩阵 $R$ 通过
 
 $$
-\theta = \cos^{-1}\left(\operatorname{clip}\left(\frac{\operatorname{tr}(R)-1}{2},-1,1\right)\right)
+\theta = \cos^{-1}\left(\mathrm{clip}\left(\frac{\mathrm{tr}(R)-1}{2},-1,1\right)\right)
 $$
 
 转换为 rotation vector $\boldsymbol r=\theta\boldsymbol u$。实现中分别处理以下情况：
@@ -68,7 +68,7 @@ $$
 对于球体，首先计算球心在线段所在直线上的投影参数，并将其限制在线段范围内：
 
 $$
-t=\operatorname{clip}\left(
+t=\mathrm{clip}\left(
 \frac{(\boldsymbol c-\boldsymbol p_A)^\mathsf{T}(\boldsymbol p_B-\boldsymbol p_A)}
 {\|\boldsymbol p_B-\boldsymbol p_A\|_2^2},0,1
 \right).
@@ -241,7 +241,7 @@ wristMetrics = ur5e_singularity_metrics(qWrist);
 shoulderMetrics = ur5e_singularity_metrics(qShoulder);
 ```
 
-| 配置 | $w(\boldsymbol q)$ | $\sigma_{\min}$ | $\operatorname{rank}_{10^{-3}}(J)$ | 关键解析因子 |
+| 配置 | $w(\boldsymbol q)$ | $\sigma_{\min}$ | $\mathrm{rank}_{10^{-3}}(J)$ | 关键解析因子 |
 |---|---:|---:|---:|---:|
 | 参考配置 | $1.774522\times10^{-3}$ | $3.624733\times10^{-2}$ | 6 | -- |
 | 接近 wrist singularity | $1.405352\times10^{-5}$ | $8.650318\times10^{-5}$ | 5 | $s_{\mathrm{wrist}}=0.00313461$ |
@@ -297,7 +297,7 @@ $$
 为了使等效标准 DH 模型保持与原六关节模型相同的末端变换，需要引入两个固定角偏移：
 
 $$
-\beta=\operatorname{atan2}(0.3922,0.425)
+\beta=\mathrm{atan2}(0.3922,0.425)
      =42.70155^\circ,
 $$
 

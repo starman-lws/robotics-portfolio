@@ -70,7 +70,7 @@ $$
 J(\boldsymbol b)=
 \sum_{j\in\mathcal O}
 \sum_{c\in\mathcal V_j}
-\operatorname{wrap}
+\mathrm{wrap}
 \left(
 \hat\eta_c(k_j;\boldsymbol b)-\eta_{c,j}
 \right)^2,
@@ -124,7 +124,7 @@ $$
 对于已经统一方向的法向量 $\boldsymbol n=[n_x,n_y,n_z]^\mathsf T$，单个平面可确定与法向一致的 roll 和 pitch：
 
 $$
-\phi=\operatorname{atan2}(n_y,n_z),
+\phi=\mathrm{atan2}(n_y,n_z),
 \qquad
 \theta=\sin^{-1}(-n_x).
 $$
@@ -150,14 +150,14 @@ $$
 $$
 \alpha_i=cos^{-1}
 \left(
-\operatorname{clip}(\boldsymbol n_g^\mathsf T\boldsymbol r_i,-1,1)
+\mathrm{clip}(\boldsymbol n_g^\mathsf T\boldsymbol r_i,-1,1)
 \right),
 $$
 
 并选择
 
 $$
-i^*=\operatorname*{arg\,min}_{i=1,\ldots,M}\alpha_i.
+i^*=\mathrm{arg\,min}_{i=1,\ldots,M}\alpha_i.
 $$
 
 仅当 $\alpha_{i^*}$ 不超过调用方提供的 `toleranceRad` 时返回 $i^*$，否则返回 `0`。零向量或非有限局部法向量也会被标记为无法关联。该接口不硬编码地面、墙面或天花板，参考方向及其语义由调用方定义。

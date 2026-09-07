@@ -80,18 +80,18 @@ $$
 
 每个轮子使用独立的 `PidController` 对象。类中保留比例、积分和微分项，当前配置的 `Kd=0`，实际使用 **PI 控制**。
 
-设目标轮速与反馈轮速之差为 $e_k$，积分累加量为 $S_k$，定义 $\operatorname{clip}(a,l,u)$ 为将 $a$ 限制在 $[l,u]$ 内：
+设目标轮速与反馈轮速之差为 $e_k$，积分累加量为 $S_k$，定义 $\mathrm{clip}(a,l,u)$ 为将 $a$ 限制在 $[l,u]$ 内：
 
 $$
 e_k=v_k^*-v_k,
 $$
 
 $$
-S_k=\operatorname{clip}(S_{k-1}+e_k,-2500,2500),
+S_k=\mathrm{clip}(S_{k-1}+e_k,-2500,2500),
 $$
 
 $$
-u_k=\operatorname{clip}(K_p e_k+K_i S_k,-100,100).
+u_k=\mathrm{clip}(K_p e_k+K_i S_k,-100,100).
 $$
 
 左右轮均使用 $K_p=0.625$、$K_i=0.125$。积分累加限幅约束持续误差造成的累加量增长，输出限幅限制传给电机驱动接口的控制值。

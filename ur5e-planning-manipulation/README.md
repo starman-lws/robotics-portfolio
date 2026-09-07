@@ -128,7 +128,7 @@ $P_1\rightarrow P_2$，因此平面朝向为
 
 $$
 \theta=
-\operatorname{atan2}
+\mathrm{atan2}
 \left(P_{2,y}-P_{1,y},\;P_{2,x}-P_{1,x}\right).
 $$
 
@@ -402,9 +402,9 @@ $$
 $$
 \tau_{\mathrm{goal}}
 =w(d)k_\theta\,
-\operatorname{clip}(\theta_g-\theta,-\pi,\pi),
+\mathrm{clip}(\theta_g-\theta,-\pi,\pi),
 \qquad
-w(d)=\operatorname{clip}\left(1-\frac{d}{100},0,1\right).
+w(d)=\mathrm{clip}\left(1-\frac{d}{100},0,1\right).
 $$
 
 最终力矩为 $\tau_{\mathrm{rep}}+\tau_{\mathrm{goal}}$。平移和旋转增量分别使用
@@ -424,14 +424,14 @@ A* 在 `5 mm x 5 mm x 3 degree` 的离散 SE(2) 网格中使用 26 邻域搜索�
 搜索图。为统一平移与旋转代价，使用矩形中心到角点的距离
 
 $$
-r_c=\operatorname{hypot}(90,45)
+r_c=\mathrm{hypot}(90,45)
 $$
 
 将角度变化转换为角点等效位移。相邻状态的运动代价为
 
 $$
 c(\boldsymbol q_i,\boldsymbol q_{i+1})
-=\operatorname{hypot}
+=\mathrm{hypot}
 \left(
 \|\Delta\boldsymbol p\|,
 r_c|\Delta\theta|
@@ -603,7 +603,7 @@ ID8 修正后的位姿表示为
 $$
 \boldsymbol T_8=
 \begin{bmatrix}x_8 & y_8 & 90\end{bmatrix},
-\qquad \theta_8=\operatorname{atan2}(P_{2,y}-P_{1,y},P_{2,x}-P_{1,x}).
+\qquad \theta_8=\mathrm{atan2}(P_{2,y}-P_{1,y},P_{2,x}-P_{1,x}).
 $$
 
 槽入口在 ID8 局部平面内使用固定 offset
