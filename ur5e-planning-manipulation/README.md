@@ -35,27 +35,27 @@ reference markers 建立图像到机器人 Base 平面的 Homography，再根据
 
 设 marker 的四个图像角点为齐次坐标
 
-$$
+```math
 \tilde{\boldsymbol p}_i=
 \begin{bmatrix}
 u_i & v_i & 1
 \end{bmatrix}^{\mathsf T},
 \qquad i=1,\ldots,4.
-$$
+```
 
 两条对角线分别为
 
-$$
+```math
 \boldsymbol l_{13}
 =\tilde{\boldsymbol p}_1\times\tilde{\boldsymbol p}_3,
 \qquad
 \boldsymbol l_{24}
 =\tilde{\boldsymbol p}_2\times\tilde{\boldsymbol p}_4.
-$$
+```
 
 marker 中心由两条对角线的交点得到：
 
-$$
+```math
 \tilde{\boldsymbol c}
 =\boldsymbol l_{13}\times\boldsymbol l_{24},
 \qquad
@@ -64,7 +64,7 @@ $$
 \begin{bmatrix}
 \tilde c_1 & \tilde c_2
 \end{bmatrix}.
-$$
+```
 
 该实现保留了 projective transformation 下的对角线交点，不直接对四个像素
 角点取算术平均。若两条对角线退化、无法得到有限交点，函数会抛出错误。
@@ -84,7 +84,7 @@ ID0 至 ID3 的 marker center 提供四组图像平面与机器人 Base 平面�
 对于图像点 $[u,v]$ 和 Base 平面点 $[x_B,y_B]$，projective
 transformation 满足
 
-$$
+```math
 s
 \begin{bmatrix}
 x_B\\
@@ -98,7 +98,7 @@ u\\
 v\\
 1
 \end{bmatrix},
-$$
+```
 
 其中 $H$ 为 $3\times3$ Homography matrix，$s$ 为非零尺度因子。估计出的
 变换保存在 `scene.imageToBaseTransform` 中。
@@ -118,19 +118,19 @@ $$
 
 对任意 marker，首先使用 Homography 将四个角点转换到 Base 平面：
 
-$$
+```math
 \boldsymbol P_i=h(\boldsymbol p_i),
 \qquad i=1,\ldots,4.
-$$
+```
 
 Base 平面位置仍由两条对角线的交点确定。marker 的局部 $+X$ 轴定义为
 $P_1\rightarrow P_2$，因此平面朝向为
 
-$$
+```math
 \theta=
 \mathrm{atan2}
 \left(P_{2,y}-P_{1,y},\;P_{2,x}-P_{1,x}\right).
-$$
+```
 
 每组 marker pose 使用相同字段：
 
@@ -145,16 +145,16 @@ $$
 大物体由所有 ID6 marker 的检测结果组合。其中心位置采用全部 ID6 中心的
 平均值：
 
-$$
+```math
 \boldsymbol T_{\mathrm{big}}
 =\frac{1}{N_6}\sum_{k=1}^{N_6}\boldsymbol T_{6,k}.
-$$
+```
 
 为保持与当前机器人任务实现一致，大物体朝向使用第一个 ID6 marker 的朝向：
 
-$$
+```math
 \theta_{\mathrm{big}}=\theta_{6,1}.
-$$
+```
 
 `scene.bigItem.corners` 保存参与该估计的全部 ID6 marker 角点，而不是
 180-by-90 mm 大物体的实体边界；实体几何模型属于后续大物体路径规划模块。
@@ -163,32 +163,32 @@ $$
 
 二维旋转矩阵定义为
 
-$$
+```math
 R(\theta)=
 \begin{bmatrix}
 \cos\theta & -\sin\theta\\
 \sin\theta &  \cos\theta
 \end{bmatrix}.
-$$
+```
 
 在 ID7 局部坐标系中定义的 offset 通过下式转换到 Base 坐标：
 
-$$
+```math
 \boldsymbol d_B=R(\theta_7)\boldsymbol d_{\mathrm{local}},
 \qquad
 \boldsymbol T_{\mathrm{goal}}=
 \boldsymbol T_7+\boldsymbol d_B.
-$$
+```
 
 当前使用两个固定目标 offset：
 
-$$
+```math
 \boldsymbol d_{\mathrm{small}}=
 \begin{bmatrix}-80 & 0\end{bmatrix}^{\mathsf T}\ \mathrm{mm},
 \qquad
 \boldsymbol d_{\mathrm{big}}=
 \begin{bmatrix}-40 & -100\end{bmatrix}^{\mathsf T}\ \mathrm{mm}.
-$$
+```
 
 两个目标的朝向均等于 ID7 的朝向。`smallGoal.corners` 和
 `bigGoal.corners` 保存用于推导目标的 ID7 marker 角点，不表示目标区域的
@@ -225,20 +225,20 @@ $$
 
 对当前位置 $\boldsymbol p$，定义目标方向差和目标距离为
 
-$$
+```math
 \boldsymbol r=\boldsymbol p-\boldsymbol g,
 \qquad d=\|\boldsymbol r\|.
-$$
+```
 
 吸引力在目标附近采用线性形式，在远处限制为常幅值，避免其随距离无限增大：
 
-$$
+```math
 \boldsymbol F_{\mathrm{att}}(\boldsymbol p)=
 \begin{cases}
 -k_a\boldsymbol r, & d\le d_a,\\[4pt]
 -k_a d_a\dfrac{\boldsymbol r}{d}, & d>d_a,
 \end{cases}
-$$
+```
 
 其中 $k_a=2$，$d_a=190\ \mathrm{mm}$。
 
@@ -246,14 +246,14 @@ $$
 
 对第 $i$ 个障碍物，令
 
-$$
+```math
 \boldsymbol q_i=\boldsymbol p-\boldsymbol o_i,
 \qquad \rho_i=\|\boldsymbol q_i\|.
-$$
+```
 
 当当前位置进入影响距离 $\rho_0=200\ \mathrm{mm}$ 时，该障碍物产生排斥力：
 
-$$
+```math
 \boldsymbol F_{\mathrm{rep},i}(\boldsymbol p)=
 \begin{cases}
 \min\!\left[
@@ -264,16 +264,16 @@ $$
 & 0<\rho_i<\rho_0,\\[8pt]
 \boldsymbol 0, & \rho_i\ge\rho_0,
 \end{cases}
-$$
+```
 
 其中 $\eta=9\times10^8$，$F_{\max}=550$。当 $\rho_i\le10^{-9}$ mm 时，
 排斥方向没有唯一解，当前实现返回零向量。总作用力为
 
-$$
+```math
 \boldsymbol F(\boldsymbol p)=
 \boldsymbol F_{\mathrm{att}}(\boldsymbol p)
 +\sum_i\boldsymbol F_{\mathrm{rep},i}(\boldsymbol p).
-$$
+```
 
 `sample_apf_vector_field` 在整个工作区以 20 mm 间距计算该合力，输出
 `X/Y/U/V` 矩阵供 `quiver` 等函数可视化。路径迭代则在当前位置直接计算
@@ -283,21 +283,21 @@ $$
 
 设固定目标步长为 $s=5\ \mathrm{mm}$，首先沿总作用力方向计算目标位移：
 
-$$
+```math
 \Delta\boldsymbol p_k^{*}
 =s\frac{\boldsymbol F(\boldsymbol p_k)}
 {\|\boldsymbol F(\boldsymbol p_k)\|}.
-$$
+```
 
 为降低相邻路径段的方向突变，实际位移使用一阶递推平滑：
 
-$$
+```math
 \Delta\boldsymbol p_k
 =\alpha\Delta\boldsymbol p_{k-1}
 +(1-\alpha)\Delta\boldsymbol p_k^{*},
 \qquad
 \boldsymbol p_{k+1}=\boldsymbol p_k+\Delta\boldsymbol p_k,
-$$
+```
 
 其中 $\alpha=0.4$，初始位移为零。该递推使路径段长度不超过 5 mm。当路径
 进入目标点 5 mm 邻域时，规划器将最后一点精确设置为目标。规划结果只使用
@@ -331,38 +331,38 @@ $$
 大物体不仅需要移动中心，还需要在避障过程中连续调整平面朝向。规划状态统一
 表示为
 
-$$
+```math
 \boldsymbol q=
 \begin{bmatrix}x & y & \theta\end{bmatrix},
-$$
+```
 
 其中 $[x,y]$ 为 Base 平面中心位置，$\theta$ 为大物体朝向。规划器使用
 `180 x 90 mm` 的矩形模型，其四个局部角点为
 
-$$
+```math
 \boldsymbol c_j^{\mathrm{local}}\in
 \left\{
 (-90,-45),(90,-45),(-90,45),(90,45)
 \right\}.
-$$
+```
 
 给定位姿 $\boldsymbol q$，第 $j$ 个角点在 Base 坐标系中的位置为
 
-$$
+```math
 \boldsymbol c_j(\boldsymbol q)
 =
 \begin{bmatrix}x\\y\end{bmatrix}
 +R(\theta)\boldsymbol c_j^{\mathrm{local}}.
-$$
+```
 
 共享路径评估器以不超过 `2.5 mm / 1.5 degree` 的间隔插值检查路径。每个检查
 位姿要求四个角点均位于工作区，并计算以下 clearance 指标：
 
-$$
+```math
 d_{\mathrm{center}}>100\ \mathrm{mm},
 \qquad
 d_{\mathrm{corner}}>70\ \mathrm{mm}.
-$$
+```
 
 该检查使用一个中心点和四个角点组成的五点模型，没有计算矩形边与圆形障碍物
 之间的连续几何距离，也没有包含机械臂连杆或三维扫掠体。
@@ -372,40 +372,40 @@ $$
 APF 规划器保留已验证的中心力、角点力和避障力矩递推。中心吸引力和中心
 排斥力组成
 
-$$
+```math
 \boldsymbol F_{\mathrm{center}}
 =\boldsymbol F_{\mathrm{att}}(\boldsymbol p)
 +\boldsymbol F_{\mathrm{rep}}(\boldsymbol p),
-$$
+```
 
 四个角点分别计算有限作用范围排斥力
 $\boldsymbol F_{\mathrm{corner},j}$。平移合力使用四角排斥力的平均值：
 
-$$
+```math
 \boldsymbol F_{\mathrm{total}}
 =\boldsymbol F_{\mathrm{center}}
 +\frac{1}{4}\sum_{j=1}^{4}
 \boldsymbol F_{\mathrm{corner},j}.
-$$
+```
 
 设角点相对中心的力臂为
 $\boldsymbol r_j=\boldsymbol c_j-\boldsymbol p$，二维叉积产生避障力矩：
 
-$$
+```math
 \tau_{\mathrm{rep}}
 =\sum_{j=1}^{4}
 \left(r_{j,x}F_{j,y}-r_{j,y}F_{j,x}\right).
-$$
+```
 
 当中心进入目标 `100 mm` 范围后，目标朝向力矩按距离线性增加：
 
-$$
+```math
 \tau_{\mathrm{goal}}
 =w(d)k_\theta\,
 \mathrm{clip}(\theta_g-\theta,-\pi,\pi),
 \qquad
 w(d)=\mathrm{clip}\left(1-\frac{d}{100},0,1\right).
-$$
+```
 
 最终力矩为 $\tau_{\mathrm{rep}}+\tau_{\mathrm{goal}}$。平移和旋转增量分别使用
 0.5 的一阶滤波；正常迭代的最大平移步长为 5 mm，最大角度步长为 3 degree。
@@ -423,20 +423,20 @@ A* 在 `5 mm x 5 mm x 3 degree` 的离散 SE(2) 网格中使用 26 邻域搜索�
 起点作为网格锚点保留精确位姿，目标则作为经过完整边验证的虚拟节点连接到
 搜索图。为统一平移与旋转代价，使用矩形中心到角点的距离
 
-$$
+```math
 r_c=\mathrm{hypot}(90,45)
-$$
+```
 
 将角度变化转换为角点等效位移。相邻状态的运动代价为
 
-$$
+```math
 c(\boldsymbol q_i,\boldsymbol q_{i+1})
 =\mathrm{hypot}
 \left(
 \|\Delta\boldsymbol p\|,
 r_c|\Delta\theta|
 \right),
-$$
+```
 
 启发函数采用当前位置到目标的同形式下界。每条搜索边都按
 `2.5 mm / 1.5 degree` 插值，并在每个插值位姿验证工作区、中心距离和四角
@@ -565,28 +565,28 @@ marker 的真实平面位置。
 
 设相机光心在 Base 坐标系中的已知位置为
 
-$$
+```math
 \boldsymbol C=
 \begin{bmatrix}-1300 & -60 & 860\end{bmatrix}^{\mathsf T} \mathrm{mm},
-$$
+```
 
 桌面 Homography 给出的角点为
 $\boldsymbol P_0=[P_{0,x},P_{0,y},0]^{\mathsf T}$，ID8 所在平面的已知高度为
 $h=90\ \mathrm{mm}$。同一条相机射线可以写为
 
-$$
+```math
 \boldsymbol P(t)=\boldsymbol C+t(\boldsymbol P_0-\boldsymbol C).
-$$
+```
 
 令其 Z 分量等于 $h$，可得
 
-$$
+```math
 \lambda=\frac{C_z-h}{C_z},
 \qquad
 \boldsymbol P_h^{xy}
 =\boldsymbol C^{xy}
 +\lambda\left(\boldsymbol P_0^{xy}-\boldsymbol C^{xy}\right).
-$$
+```
 
 代码对 ID8 的四个图像角点分别执行该修正，再使用两条对角线的 projective
 交点计算 marker 中心。因为四个 XY 角点都经过相同的正比例缩放和平移，
@@ -600,24 +600,24 @@ $$
 
 ID8 修正后的位姿表示为
 
-$$
+```math
 \boldsymbol T_8=
 \begin{bmatrix}x_8 & y_8 & 90\end{bmatrix},
 \qquad \theta_8=\mathrm{atan2}(P_{2,y}-P_{1,y},P_{2,x}-P_{1,x}).
-$$
+```
 
 槽入口在 ID8 局部平面内使用固定 offset
 $\boldsymbol d_{\mathrm{slot}}=[0,-80]^{\mathsf T}\ \mathrm{mm}$，其 Base
 位置和朝向为
 
-$$
+```math
 \boldsymbol T_{\mathrm{slot}}^{xy}
 =\boldsymbol T_8^{xy}+R(\theta_8)\boldsymbol d_{\mathrm{slot}},
 \qquad
 T_{\mathrm{slot},z}=60\ \mathrm{mm},
 \qquad
 \theta_{\mathrm{slot}}=\theta_8.
-$$
+```
 
 `scene.elevatedMarker.corners` 保存修正到 `Z=90 mm` 的四个 ID8 角点；
 `scene.slotEntrance.corners` 保留同一组来源角点，用于追溯槽入口的视觉依据，
@@ -652,14 +652,14 @@ $$
 到达槽入口 XY 上方后，TCP 首先保持吸盘向下并对齐槽口 yaw。随后在当前 TCP
 局部 X 轴上右乘 `+45 degree` 旋转：
 
-$$
+```math
 R_{\mathrm{tilt}}
 =R_{\mathrm{downward}}(\theta_{\mathrm{slot}})R_x(45^\circ).
-$$
+```
 
 接近、插入和撤离位移都在倾斜后的 TCP 局部 Z 轴中定义，再转换到 Base 坐标：
 
-$$
+```math
 \Delta\boldsymbol p_{\mathrm{clear}}
 =R_{\mathrm{tilt}}
 \begin{bmatrix}0\\0\\-40\end{bmatrix},
@@ -671,7 +671,7 @@ $$
 \Delta\boldsymbol p_{\mathrm{retreat}}
 =R_{\mathrm{tilt}}
 \begin{bmatrix}0\\0\\-50\end{bmatrix}.
-$$
+```
 
 完整执行顺序为：
 

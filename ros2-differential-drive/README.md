@@ -44,11 +44,11 @@ flowchart TD
 
 设第 $i$ 个轮子的编码器累计计数为 $N_{i,k}$，每个计数对应的轮子前进距离为 $c_i$，相邻更新时间差为 $\Delta t_{\mathrm{ms}}$。轮速按下式计算：
 
-$$
+```math
 \Delta N_{i,k}=N_{i,k}-N_{i,k-1},
 \qquad
 v_{i,k}=\frac{\Delta N_{i,k}c_i}{\Delta t_{\mathrm{ms}}}\times1000.
-$$
+```
 
 $c_i$ 的单位为 mm/计数，得到的轮速单位为 mm/s。当前左右轮均采用 `0.10658 mm/计数`，轮速在代码中存储为 `int16_t`，因此会截断小数部分。
 
@@ -58,19 +58,19 @@ $c_i$ 的单位为 mm/计数，得到的轮速单位为 mm/s。当前左右轮�
 
 设轮距为 $L$，车体前向线速度为 $v$，角速度为 $\omega$。逆运动学将车体速度指令分解为左右轮目标速度：
 
-$$
+```math
 v_L^*=v-\frac{L\omega}{2},
 \qquad
 v_R^*=v+\frac{L\omega}{2}.
-$$
+```
 
 正运动学根据编码器测得的左右轮速度恢复车体速度：
 
-$$
+```math
 v=\frac{v_L+v_R}{2},
 \qquad
 \omega=\frac{v_R-v_L}{L}.
-$$
+```
 
 内部轮距和轮速分别采用 mm、mm/s，角速度采用 rad/s。ROS `Twist.linear.x` 的单位为 m/s，订阅回调先乘以 `1000`，再执行逆解；里程计发布前则将线速度转换回 m/s。
 
@@ -82,17 +82,17 @@ $$
 
 设目标轮速与反馈轮速之差为 $e_k$，积分累加量为 $S_k$，定义 $\mathrm{clip}(a,l,u)$ 为将 $a$ 限制在 $[l,u]$ 内：
 
-$$
+```math
 e_k=v_k^*-v_k,
-$$
+```
 
-$$
+```math
 S_k=\mathrm{clip}(S_{k-1}+e_k,-2500,2500),
-$$
+```
 
-$$
+```math
 u_k=\mathrm{clip}(K_p e_k+K_i S_k,-100,100).
-$$
+```
 
 左右轮均使用 $K_p=0.625$、$K_i=0.125$。积分累加限幅约束持续误差造成的累加量增长，输出限幅限制传给电机驱动接口的控制值。
 
@@ -106,24 +106,24 @@ $$
 
 里程计状态为平面位置 $(x,y)$ 和航向角 $\theta$。正运动学得到的线速度转换为 m/s，时间差转换为 s 后，先更新角度，再以更新后的角度累计位置：
 
-$$
+```math
 \theta_k=\theta_{k-1}+\omega_k\Delta t,
-$$
+```
 
-$$
+```math
 x_k=x_{k-1}+v_k\Delta t\cos\theta_k,
 \qquad
 y_k=y_{k-1}+v_k\Delta t\sin\theta_k.
-$$
+```
 
 这与当前 `update_odom()` 的计算顺序一致。代码在角度更新后进行一次 $2\pi$ 加减，将普通小步长更新中越过 $\pm\pi$ 的航向拉回主值区间。
 
 发布 `nav_msgs/msg/Odometry` 时，平面航向被转换为绕 Z 轴旋转的四元数：
 
-$$
+```math
 (q_x,q_y,q_z,q_w)
 =\left(0,0,\sin\frac{\theta}{2},\cos\frac{\theta}{2}\right).
-$$
+```
 
 消息包含平面位置、航向、前向线速度和角速度。时间戳来自与 Agent 同步后的 micro-ROS epoch 时间。
 

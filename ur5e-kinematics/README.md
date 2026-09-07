@@ -8,7 +8,7 @@
 
 主函数接收六个关节角，根据标准 DH 参数依次构造相邻 frame 之间的齐次变换：
 
-$$
+```math
 {}^{i-1}T_i =
 \begin{bmatrix}
 \cos\theta_i & -\sin\theta_i\cos\alpha_i & \sin\theta_i\sin\alpha_i & a_i\cos\theta_i \\
@@ -16,13 +16,13 @@ $$
 0 & \sin\alpha_i & \cos\alpha_i & d_i \\
 0 & 0 & 0 & 1
 \end{bmatrix}.
-$$
+```
 
 通过有序连乘得到末端变换
 
-$$
+```math
 {}^0T_6 = {}^0T_1{}^1T_2{}^2T_3{}^3T_4{}^4T_5{}^5T_6,
-$$
+```
 
 同时记录 $p_0$ 至 $p_6$ 的 frame origin，用于后续工作空间与碰撞检查。
 
@@ -39,9 +39,9 @@ $$
 
 末端旋转矩阵 $R$ 通过
 
-$$
+```math
 \theta = \cos^{-1}\left(\mathrm{clip}\left(\frac{\mathrm{tr}(R)-1}{2},-1,1\right)\right)
-$$
+```
 
 转换为 rotation vector $\boldsymbol r=\theta\boldsymbol u$。实现中分别处理以下情况：
 
@@ -67,12 +67,12 @@ $$
 
 对于球体，首先计算球心在线段所在直线上的投影参数，并将其限制在线段范围内：
 
-$$
+```math
 t=\mathrm{clip}\left(
 \frac{(\boldsymbol c-\boldsymbol p_A)^\mathsf{T}(\boldsymbol p_B-\boldsymbol p_A)}
 {\|\boldsymbol p_B-\boldsymbol p_A\|_2^2},0,1
 \right).
-$$
+```
 
 若最近点与球心的距离不大于球体半径，则判定为碰撞；相切也计为碰撞。
 
@@ -159,23 +159,23 @@ ok = 1
 
 正运动学连乘得到的累计变换同时给出各 frame origin $\boldsymbol o_i$ 和关节轴 $\boldsymbol z_i$，并统一在 base frame 中表达。UR5e 的六个关节均为转动关节，因此第 $i$ 列为
 
-$$
+```math
 J_i=
 \begin{bmatrix}
 \boldsymbol z_{i-1}\times(\boldsymbol o_6-\boldsymbol o_{i-1})\\
 \boldsymbol z_{i-1}
 \end{bmatrix},
 \qquad i=1,\ldots,6.
-$$
+```
 
 完整几何 Jacobian 按线速度和角速度排列：
 
-$$
+```math
 J=
 \begin{bmatrix}
 J_v\\J_\omega
 \end{bmatrix}.
-$$
+```
 
 $J_v$ 的长度单位采用 metre，$J_\omega$ 为无量纲映射。
 
@@ -183,11 +183,11 @@ $J_v$ 的长度单位采用 metre，$J_\omega$ 为无量纲映射。
 
 设 $J$ 的奇异值为 $\sigma_1\geq\cdots\geq\sigma_6\geq0$。实现同时给出 determinant、最小奇异值、数值秩、condition number 和 Yoshikawa manipulability：
 
-$$
+```math
 w(\boldsymbol q)
 =\prod_{i=1}^{6}\sigma_i
 =\sqrt{\det\!\left(JJ^\mathsf T\right)}.
-$$
+```
 
 当 $\sigma_{\min}$ 或 $w(\boldsymbol q)$ 接近零时，Jacobian 接近秩亏。数值秩采用调用方提供的 tolerance；默认值为 `1e-3`。manipulability 通过奇异值乘积计算，避免直接计算行列式时出现微小负数舍入误差。
 
@@ -195,17 +195,17 @@ $$
 
 数值指标用于衡量 Jacobian 距离秩亏的程度，解析因子则用于定位对应的奇异曲面。基于本仓库采用的 UR5e 标准 DH 模型，三个 signed 因子为
 
-$$
+```math
 s_{\mathrm{shoulder}}
 =a_2\cos q_2+a_3\cos(q_2+q_3)
 +d_5\sin(q_2+q_3+q_4),
-$$
+```
 
-$$
+```math
 s_{\mathrm{elbow}}=\sin q_3,
 \qquad
 s_{\mathrm{wrist}}=\sin q_5.
-$$
+```
 
 $s_{\mathrm{shoulder}}$ 的单位为 metre，另外两个因子无量纲。函数返回保留符号的连续数值，不使用固定阈值直接给配置贴上 singular 或 non-singular 标签。
 
@@ -270,48 +270,48 @@ shoulderMetrics = ur5e_singularity_metrics(qShoulder);
 
 在一组包含 96 个配置的记录数据中，最小值位于第 49 行：
 
-$$
+```math
 \boldsymbol q_{\min}
 =[-12.816894,-71.810004,83.159667,-323.216665,-0.057009,192.908816]^\circ,
-$$
+```
 
-$$
+```math
 w(\boldsymbol q_{\min})=7.29420020329\times10^{-5}.
-$$
+```
 
 ## 肘关节锁定后的等效五自由度模型
 
 当原 UR5e 的第三关节固定在
 
-$$
+```math
 q_3=90^\circ
-$$
+```
 
 时，该关节不再是独立变量，机械臂可表示为五自由度模型。原第二、第三连杆在同一平面内形成固定折线，其合成位移长度为
 
-$$
+```math
 a'_2=-\sqrt{0.425^2+0.3922^2}
     =-0.578312926\ \mathrm{m}.
-$$
+```
 
 为了使等效标准 DH 模型保持与原六关节模型相同的末端变换，需要引入两个固定角偏移：
 
-$$
+```math
 \beta=\mathrm{atan2}(0.3922,0.425)
      =42.70155^\circ,
-$$
+```
 
-$$
+```math
 \delta=90^\circ-\beta
       =47.29845^\circ.
-$$
+```
 
 对应的局部变换关系为
 
-$$
+```math
 A_2(q_2)A_3(90^\circ)A_4(q_4)
 =A'_2(q_2+\beta)A'_3(q_4+\delta).
-$$
+```
 
 ### 几何等效关系
 
@@ -360,7 +360,7 @@ dhTable = ur5e_locked_elbow_dh(q);
 
 得到
 
-$$
+```math
 T_0^5\approx
 \begin{bmatrix}
 0.940503 & 0.238884 & -0.241635 & -0.681001 \\
@@ -368,7 +368,7 @@ T_0^5\approx
 0.177238 & 0.261829 & 0.948700 & 0.225123 \\
 0 & 0 & 0 & 1
 \end{bmatrix},
-$$
+```
 
 ```text
 eePose = [-681.001368, 190.615547, 225.122643,

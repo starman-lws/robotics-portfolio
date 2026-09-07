@@ -30,43 +30,43 @@
 
 陀螺仪测量模型写为
 
-$$
+```math
 \boldsymbol\omega_m
 =\boldsymbol\omega+\boldsymbol b+\boldsymbol n_g,
-$$
+```
 
 其中 $\boldsymbol\omega_m$ 为测量角速度，$\boldsymbol\omega$ 为真实机体系角速度，$\boldsymbol b$ 为待估计的恒定三轴偏置，$\boldsymbol n_g$ 为测量噪声。
 
 对 ZYX Euler 姿态 $\boldsymbol\eta=[\phi,\theta,\psi]^\mathsf T$，机体系角速度到姿态角速度的映射为
 
-$$
+```math
 \dot{\boldsymbol\eta}
 =E(\phi,\theta)(\boldsymbol\omega_m-\boldsymbol b),
-$$
+```
 
-$$
+```math
 E(\phi,\theta)=
 \begin{bmatrix}
 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\
 0 & \cos\phi & -\sin\phi \\
 0 & \sin\phi/\cos\theta & \cos\phi/\cos\theta
 \end{bmatrix}.
-$$
+```
 
 代码对每个角速度采样采用零阶保持，并使用显式 Euler 方法积分：
 
-$$
+```math
 \boldsymbol\eta_k
 =\boldsymbol\eta_{k-1}
 +\Delta t_k E(\boldsymbol\eta_{k-1})
 (\boldsymbol\omega_{m,k-1}-\boldsymbol b).
-$$
+```
 
 ### 2. 稀疏姿态观测目标函数
 
 设姿态观测只在索引集合 $\mathcal O$ 中出现，且某些 roll、pitch 或 yaw 分量可能缺失。偏置通过最小化有效分量的周期角度残差获得：
 
-$$
+```math
 J(\boldsymbol b)=
 \sum_{j\in\mathcal O}
 \sum_{c\in\mathcal V_j}
@@ -74,7 +74,7 @@ J(\boldsymbol b)=
 \left(
 \hat\eta_c(k_j;\boldsymbol b)-\eta_{c,j}
 \right)^2,
-$$
+```
 
 其中 $\mathcal V_j$ 表示第 $j$ 个观测中非 `NaN` 的有效分量。角度差通过 `atan2(sin(delta), cos(delta))` 包裹到主值区间，以避免跨越 $\pm\pi$ 时产生虚假大残差。优化使用基础 MATLAB 的 `fminsearch`，不需要 Optimization Toolbox。
 
@@ -84,28 +84,28 @@ $$
 
 给定 $N$ 个三维点 $\boldsymbol p_i$，首先计算质心
 
-$$
+```math
 \bar{\boldsymbol p}=\frac{1}{N}\sum_{i=1}^{N}\boldsymbol p_i,
-$$
+```
 
 并构造去中心化矩阵
 
-$$
+```math
 A=
 \begin{bmatrix}
 (\boldsymbol p_1-\bar{\boldsymbol p})^\mathsf T\\
 \vdots\\
 (\boldsymbol p_N-\bar{\boldsymbol p})^\mathsf T
 \end{bmatrix}.
-$$
+```
 
 对 $A=U\Sigma V^\mathsf T$ 执行 SVD，最小奇异值对应的右奇异向量即为最小化点面正交距离平方和的单位法向量。实现要求点集至少在两个独立的平面内方向上具有跨度，因此会拒绝少于三个点或近似共线的退化输入。
 
 SVD 本身只能确定法向轴，无法区分 $\boldsymbol n$ 与 $-\boldsymbol n$。`fitPlaneSVD` 使用已知视点 $\boldsymbol v$ 统一方向，使
 
-$$
+```math
 \boldsymbol n^\mathsf T(\boldsymbol v-\bar{\boldsymbol p})>0.
-$$
+```
 
 若视点位于拟合平面内，法向方向无法确定，函数会明确报错，而不是任意选择符号。
 
@@ -113,9 +113,9 @@ $$
 
 第 $i$ 个点到拟合平面的有符号距离为
 
-$$
+```math
 d_i=(\boldsymbol p_i-\bar{\boldsymbol p})^\mathsf T\boldsymbol n.
-$$
+```
 
 模块返回最大绝对距离、RMS 距离和奇异值比 $\sigma_3/\sigma_2$。`evaluatePointCloudPlanarity` 使用调用方提供的距离门限判断点集是否近似共面，不在内部绑定特定传感器分辨率或场景阈值。
 
@@ -123,42 +123,42 @@ $$
 
 对于已经统一方向的法向量 $\boldsymbol n=[n_x,n_y,n_z]^\mathsf T$，单个平面可确定与法向一致的 roll 和 pitch：
 
-$$
+```math
 \phi=\mathrm{atan2}(n_y,n_z),
 \qquad
 \theta=\sin^{-1}(-n_x).
-$$
+```
 
 绕法向量的 yaw 无法由单个平面独立观测。原点到平面的无符号法向距离为 $|\bar{\boldsymbol p}^\mathsf T\boldsymbol n|$。模块还提供通用 ZYX 刚体变换
 
-$$
+```math
 \boldsymbol p_{\mathrm{target}}
 =R_z(\psi)R_y(\theta)R_x(\phi)\boldsymbol p_{\mathrm{source}}
 +\boldsymbol t.
-$$
+```
 
 ## 平面法向量关联
 
 输入局部法向量 $\boldsymbol n_b$ 后，算法首先检查其有限性和模长，然后将其归一化并旋转至全局坐标系：
 
-$$
+```math
 \boldsymbol n_g=R_z(\psi)R_y(\theta)R_x(\phi)\boldsymbol n_b.
-$$
+```
 
 给定 $M$ 个全局参考方向 $\boldsymbol r_i$，每个参考向量同样被归一化。算法计算有向夹角
 
-$$
+```math
 \alpha_i=cos^{-1}
 \left(
 \mathrm{clip}(\boldsymbol n_g^\mathsf T\boldsymbol r_i,-1,1)
 \right),
-$$
+```
 
 并选择
 
-$$
+```math
 i^*=\mathrm{arg\,min}_{i=1,\ldots,M}\alpha_i.
-$$
+```
 
 仅当 $\alpha_{i^*}$ 不超过调用方提供的 `toleranceRad` 时返回 $i^*$，否则返回 `0`。零向量或非有限局部法向量也会被标记为无法关联。该接口不硬编码地面、墙面或天花板，参考方向及其语义由调用方定义。
 
@@ -168,85 +168,85 @@ $$
 
 滤波状态定义为
 
-$$
+```math
 \boldsymbol x=
 \begin{bmatrix}
 \phi & \theta & \psi & b_x & b_y & b_z
 \end{bmatrix}^{\mathsf T}.
-$$
+```
 
 姿态使用非线性 ZYX Euler 运动学传播，偏置采用常值状态模型：
 
-$$
+```math
 \boldsymbol\eta_k^-
 =\boldsymbol\eta_{k-1}^+
 +\Delta t_k E(\boldsymbol\eta_{k-1}^+)
 (\boldsymbol\omega_{m,k-1}-\boldsymbol b_{k-1}^+),
-$$
+```
 
-$$
+```math
 \boldsymbol b_k^-=\boldsymbol b_{k-1}^+.
-$$
+```
 
 实现中解析构造离散状态 Jacobian $F_k$ 和陀螺仪噪声输入 Jacobian $G_k$，协方差预测为
 
-$$
+```math
 P_k^-=F_kP_{k-1}^+F_k^\mathsf T
 +G_k\left(\sigma_g^2I_3\right)G_k^\mathsf T.
-$$
+```
 
 ### 2. 平面法向量观测模型
 
 当局部测量法向量已经与全局参考方向 $\boldsymbol n_g$ 完成关联时，EKF 预测该参考法向量在机体系下的表达：
 
-$$
+```math
 \boldsymbol h(\boldsymbol x)=R(\phi,\theta,\psi)^\mathsf T\boldsymbol n_g.
-$$
+```
 
 测量模型为
 
-$$
+```math
 \boldsymbol z=\boldsymbol h(\boldsymbol x)+\boldsymbol v,
 \qquad
 \boldsymbol v\sim\mathcal N(\boldsymbol 0,\sigma_n^2I_3).
-$$
+```
 
 代码分别对 roll、pitch 和 yaw 解析求导，构造
 
-$$
+```math
 H_k=
 \begin{bmatrix}
 \partial\boldsymbol h/\partial\boldsymbol\eta & 0_{3\times3}
 \end{bmatrix}.
-$$
+```
 
 ### 3. Joseph-form 更新
 
 新息、创新协方差和 Kalman 增益分别为
 
-$$
+```math
 \boldsymbol y_k=\boldsymbol z_k-\boldsymbol h(\boldsymbol x_k^-),
-$$
+```
 
-$$
+```math
 S_k=H_kP_k^-H_k^\mathsf T+R_k,
 \qquad
 K_k=P_k^-H_k^\mathsf TS_k^{-1}.
-$$
+```
 
 状态更新为
 
-$$
+```math
 \boldsymbol x_k^+=\boldsymbol x_k^-+K_k\boldsymbol y_k.
-$$
+```
 
 协方差使用 Joseph form，而不是简化的 $(I-KH)P$：
 
-$$
+```math
 P_k^+
 =(I-K_kH_k)P_k^-(I-K_kH_k)^\mathsf T
 +K_kR_kK_k^\mathsf T.
-$$
+```
 
 每次预测和更新后都会显式对称化协方差。运动学计算还会限制 $|\cos\theta|$ 的最小值，以避免在 Euler 奇异点附近直接除零；该处理只提供数值保护，并不会消除 Euler 表示本身的奇异性。
 
@@ -566,11 +566,11 @@ referenceFloorNormalGlobal = [0; 0; 1];
 
 偏置检查使用已知恒定角速度、已知偏置和稀疏姿态观测，其中一个 yaw 观测被设为 `NaN`，用于确认按分量忽略缺失观测。估计误差为
 
-$$
+```math
 \left\|
 \hat{\boldsymbol b}-\boldsymbol b_{\mathrm{true}}
 \right\|_2.
-$$
+```
 
 该检查中的真值轨迹和估计过程采用相同的 Euler 运动学与积分器，因此结果用于验证偏置目标函数、缺失观测处理和优化流程的一致性，不构成独立的传感器精度评估。
 
