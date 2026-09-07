@@ -17,11 +17,11 @@
 
 统一约定如下：
 
-- 姿态排列为 $[\phi,\theta,\psi]^\mathsf T=[\text{roll},\text{pitch},\text{yaw}]^\mathsf T$；
-- 旋转顺序采用 ZYX Euler convention，机体系到全局坐标系的旋转矩阵为 $R=R_z(\psi)R_y(\theta)R_x(\phi)$；
+- 姿态排列为 $`[\phi,\theta,\psi]^\mathsf T=[\text{roll},\text{pitch},\text{yaw}]^\mathsf T`$；
+- 旋转顺序采用 ZYX Euler convention，机体系到全局坐标系的旋转矩阵为 $`R=R_z(\psi)R_y(\theta)R_x(\phi)`$；
 - 姿态使用 rad，角速度和陀螺仪偏置使用 rad/s，时间使用 s；
 - 三维点坐标和平面距离使用 m；
-- 平面法向量具有方向，因此 $\boldsymbol n$ 与 $-\boldsymbol n$ 不等价；
+- 平面法向量具有方向，因此 $`\boldsymbol n`$ 与 $`-\boldsymbol n`$ 不等价；
 - 各模块的 `private` 目录保存内部运动学、解析 Jacobian 和数值稳定性辅助函数，不构成公共接口。
 
 ## 陀螺仪偏置估计
@@ -35,9 +35,9 @@
 =\boldsymbol\omega+\boldsymbol b+\boldsymbol n_g,
 ```
 
-其中 $\boldsymbol\omega_m$ 为测量角速度，$\boldsymbol\omega$ 为真实机体系角速度，$\boldsymbol b$ 为待估计的恒定三轴偏置，$\boldsymbol n_g$ 为测量噪声。
+其中 $`\boldsymbol\omega_m`$ 为测量角速度，$`\boldsymbol\omega`$ 为真实机体系角速度，$`\boldsymbol b`$ 为待估计的恒定三轴偏置，$`\boldsymbol n_g`$ 为测量噪声。
 
-对 ZYX Euler 姿态 $\boldsymbol\eta=[\phi,\theta,\psi]^\mathsf T$，机体系角速度到姿态角速度的映射为
+对 ZYX Euler 姿态 $`\boldsymbol\eta=[\phi,\theta,\psi]^\mathsf T`$，机体系角速度到姿态角速度的映射为
 
 ```math
 \dot{\boldsymbol\eta}
@@ -64,7 +64,7 @@ E(\phi,\theta)=
 
 ### 2. 稀疏姿态观测目标函数
 
-设姿态观测只在索引集合 $\mathcal O$ 中出现，且某些 roll、pitch 或 yaw 分量可能缺失。偏置通过最小化有效分量的周期角度残差获得：
+设姿态观测只在索引集合 $`\mathcal O`$ 中出现，且某些 roll、pitch 或 yaw 分量可能缺失。偏置通过最小化有效分量的周期角度残差获得：
 
 ```math
 J(\boldsymbol b)=
@@ -76,13 +76,13 @@ J(\boldsymbol b)=
 \right)^2,
 ```
 
-其中 $\mathcal V_j$ 表示第 $j$ 个观测中非 `NaN` 的有效分量。角度差通过 `atan2(sin(delta), cos(delta))` 包裹到主值区间，以避免跨越 $\pm\pi$ 时产生虚假大残差。优化使用基础 MATLAB 的 `fminsearch`，不需要 Optimization Toolbox。
+其中 $`\mathcal V_j`$ 表示第 $`j`$ 个观测中非 `NaN` 的有效分量。角度差通过 `atan2(sin(delta), cos(delta))` 包裹到主值区间，以避免跨越 $`\pm\pi`$ 时产生虚假大残差。优化使用基础 MATLAB 的 `fminsearch`，不需要 Optimization Toolbox。
 
 ## 点云平面估计
 
 ### 1. SVD 最小二乘拟合
 
-给定 $N$ 个三维点 $\boldsymbol p_i$，首先计算质心
+给定 $`N`$ 个三维点 $`\boldsymbol p_i`$，首先计算质心
 
 ```math
 \bar{\boldsymbol p}=\frac{1}{N}\sum_{i=1}^{N}\boldsymbol p_i,
@@ -99,9 +99,9 @@ A=
 \end{bmatrix}.
 ```
 
-对 $A=U\Sigma V^\mathsf T$ 执行 SVD，最小奇异值对应的右奇异向量即为最小化点面正交距离平方和的单位法向量。实现要求点集至少在两个独立的平面内方向上具有跨度，因此会拒绝少于三个点或近似共线的退化输入。
+对 $`A=U\Sigma V^\mathsf T`$ 执行 SVD，最小奇异值对应的右奇异向量即为最小化点面正交距离平方和的单位法向量。实现要求点集至少在两个独立的平面内方向上具有跨度，因此会拒绝少于三个点或近似共线的退化输入。
 
-SVD 本身只能确定法向轴，无法区分 $\boldsymbol n$ 与 $-\boldsymbol n$。`fitPlaneSVD` 使用已知视点 $\boldsymbol v$ 统一方向，使
+SVD 本身只能确定法向轴，无法区分 $`\boldsymbol n`$ 与 $`-\boldsymbol n`$。`fitPlaneSVD` 使用已知视点 $`\boldsymbol v`$ 统一方向，使
 
 ```math
 \boldsymbol n^\mathsf T(\boldsymbol v-\bar{\boldsymbol p})>0.
@@ -111,17 +111,17 @@ SVD 本身只能确定法向轴，无法区分 $\boldsymbol n$ 与 $-\boldsymbol
 
 ### 2. 点面残差与共面性
 
-第 $i$ 个点到拟合平面的有符号距离为
+第 $`i`$ 个点到拟合平面的有符号距离为
 
 ```math
 d_i=(\boldsymbol p_i-\bar{\boldsymbol p})^\mathsf T\boldsymbol n.
 ```
 
-模块返回最大绝对距离、RMS 距离和奇异值比 $\sigma_3/\sigma_2$。`evaluatePointCloudPlanarity` 使用调用方提供的距离门限判断点集是否近似共面，不在内部绑定特定传感器分辨率或场景阈值。
+模块返回最大绝对距离、RMS 距离和奇异值比 $`\sigma_3/\sigma_2`$。`evaluatePointCloudPlanarity` 使用调用方提供的距离门限判断点集是否近似共面，不在内部绑定特定传感器分辨率或场景阈值。
 
 ### 3. 平面姿态与刚体变换
 
-对于已经统一方向的法向量 $\boldsymbol n=[n_x,n_y,n_z]^\mathsf T$，单个平面可确定与法向一致的 roll 和 pitch：
+对于已经统一方向的法向量 $`\boldsymbol n=[n_x,n_y,n_z]^\mathsf T`$，单个平面可确定与法向一致的 roll 和 pitch：
 
 ```math
 \phi=\mathrm{atan2}(n_y,n_z),
@@ -129,7 +129,7 @@ d_i=(\boldsymbol p_i-\bar{\boldsymbol p})^\mathsf T\boldsymbol n.
 \theta=\sin^{-1}(-n_x).
 ```
 
-绕法向量的 yaw 无法由单个平面独立观测。原点到平面的无符号法向距离为 $|\bar{\boldsymbol p}^\mathsf T\boldsymbol n|$。模块还提供通用 ZYX 刚体变换
+绕法向量的 yaw 无法由单个平面独立观测。原点到平面的无符号法向距离为 $`|\bar{\boldsymbol p}^\mathsf T\boldsymbol n|`$。模块还提供通用 ZYX 刚体变换
 
 ```math
 \boldsymbol p_{\mathrm{target}}
@@ -139,13 +139,13 @@ d_i=(\boldsymbol p_i-\bar{\boldsymbol p})^\mathsf T\boldsymbol n.
 
 ## 平面法向量关联
 
-输入局部法向量 $\boldsymbol n_b$ 后，算法首先检查其有限性和模长，然后将其归一化并旋转至全局坐标系：
+输入局部法向量 $`\boldsymbol n_b`$ 后，算法首先检查其有限性和模长，然后将其归一化并旋转至全局坐标系：
 
 ```math
 \boldsymbol n_g=R_z(\psi)R_y(\theta)R_x(\phi)\boldsymbol n_b.
 ```
 
-给定 $M$ 个全局参考方向 $\boldsymbol r_i$，每个参考向量同样被归一化。算法计算有向夹角
+给定 $`M`$ 个全局参考方向 $`\boldsymbol r_i`$，每个参考向量同样被归一化。算法计算有向夹角
 
 ```math
 \alpha_i=cos^{-1}
@@ -160,7 +160,7 @@ d_i=(\boldsymbol p_i-\bar{\boldsymbol p})^\mathsf T\boldsymbol n.
 i^*=\mathrm{arg\,min}_{i=1,\ldots,M}\alpha_i.
 ```
 
-仅当 $\alpha_{i^*}$ 不超过调用方提供的 `toleranceRad` 时返回 $i^*$，否则返回 `0`。零向量或非有限局部法向量也会被标记为无法关联。该接口不硬编码地面、墙面或天花板，参考方向及其语义由调用方定义。
+仅当 $`\alpha_{i^*}`$ 不超过调用方提供的 `toleranceRad` 时返回 $`i^*`$，否则返回 `0`。零向量或非有限局部法向量也会被标记为无法关联。该接口不硬编码地面、墙面或天花板，参考方向及其语义由调用方定义。
 
 ## 六维增广状态 EKF
 
@@ -188,7 +188,7 @@ i^*=\mathrm{arg\,min}_{i=1,\ldots,M}\alpha_i.
 \boldsymbol b_k^-=\boldsymbol b_{k-1}^+.
 ```
 
-实现中解析构造离散状态 Jacobian $F_k$ 和陀螺仪噪声输入 Jacobian $G_k$，协方差预测为
+实现中解析构造离散状态 Jacobian $`F_k`$ 和陀螺仪噪声输入 Jacobian $`G_k`$，协方差预测为
 
 ```math
 P_k^-=F_kP_{k-1}^+F_k^\mathsf T
@@ -197,7 +197,7 @@ P_k^-=F_kP_{k-1}^+F_k^\mathsf T
 
 ### 2. 平面法向量观测模型
 
-当局部测量法向量已经与全局参考方向 $\boldsymbol n_g$ 完成关联时，EKF 预测该参考法向量在机体系下的表达：
+当局部测量法向量已经与全局参考方向 $`\boldsymbol n_g`$ 完成关联时，EKF 预测该参考法向量在机体系下的表达：
 
 ```math
 \boldsymbol h(\boldsymbol x)=R(\phi,\theta,\psi)^\mathsf T\boldsymbol n_g.
@@ -240,7 +240,7 @@ K_k=P_k^-H_k^\mathsf TS_k^{-1}.
 \boldsymbol x_k^+=\boldsymbol x_k^-+K_k\boldsymbol y_k.
 ```
 
-协方差使用 Joseph form，而不是简化的 $(I-KH)P$：
+协方差使用 Joseph form，而不是简化的 $`(I-KH)P`$：
 
 ```math
 P_k^+
@@ -248,7 +248,7 @@ P_k^+
 +K_kR_kK_k^\mathsf T.
 ```
 
-每次预测和更新后都会显式对称化协方差。运动学计算还会限制 $|\cos\theta|$ 的最小值，以避免在 Euler 奇异点附近直接除零；该处理只提供数值保护，并不会消除 Euler 表示本身的奇异性。
+每次预测和更新后都会显式对称化协方差。运动学计算还会限制 $`|\cos\theta|`$ 的最小值，以避免在 Euler 奇异点附近直接除零；该处理只提供数值保护，并不会消除 Euler 表示本身的奇异性。
 
 ## 代码结构
 
@@ -321,7 +321,7 @@ transformedPoints = transformPointCloudZYX( ...
     points, attitudeRad, translation)
 ```
 
-`rollPitchRad` 返回 `[roll; pitch]`，单位为 rad；`normalDistance` 与点坐标使用相同长度单位。点云变换采用 $R_zR_yR_x$ 顺序，`translation` 与点云使用相同单位。
+`rollPitchRad` 返回 `[roll; pitch]`，单位为 rad；`normalDistance` 与点坐标使用相同长度单位。点云变换采用 $`R_zR_yR_x`$ 顺序，`translation` 与点云使用相同单位。
 
 ### 2. 陀螺仪偏置估计
 
@@ -539,7 +539,7 @@ referenceFloorNormalGlobal = [0; 0; 1];
   </tr>
 </table>
 
-点云运行界面保留原实现的显示单位 mm，姿态和偏置曲线分别使用 degree 与 degree/s；作品集公共接口则统一采用 m、rad 和 rad/s。偏置检查向记录数据注入了 $[-1,\ 1.5,\ -1]^\mathsf T\ \mathrm{degree/s}$ 的恒定测试偏置，用于观察滤波器的收敛行为。图片展示的是一次完整离线回放结果，不代表公开数据集精度、真实传感器标定精度或实时性能基准。
+点云运行界面保留原实现的显示单位 mm，姿态和偏置曲线分别使用 degree 与 degree/s；作品集公共接口则统一采用 m、rad 和 rad/s。偏置检查向记录数据注入了 $`[-1,\ 1.5,\ -1]^\mathsf T\ \mathrm{degree/s}`$ 的恒定测试偏置，用于观察滤波器的收敛行为。图片展示的是一次完整离线回放结果，不代表公开数据集精度、真实传感器标定精度或实时性能基准。
 
 ## 合成输入数值验证
 
@@ -547,19 +547,19 @@ referenceFloorNormalGlobal = [0; 0; 1];
 
 | 检查项 | 结果 |
 |---|---:|
-| 已知恒定偏置的估计误差 | $4.10568935028\times10^{-11}\ \mathrm{rad/s}$ |
+| 已知恒定偏置的估计误差 | $`4.10568935028\times10^{-11}\ \mathrm{rad/s}`$ |
 | 法向量预期参考索引 | `2` |
 | 法向量实际返回索引 | `2` |
-| 300 次 EKF 预测及周期更新后的协方差对称误差 | $0$ |
-| 最终协方差最小特征值 | $1.86875552315\times10^{-6}$ |
-| 解析观测 Jacobian 与中心差分的最大元素误差 | $6.72568001292\times10^{-10}$ |
-| SVD 平面法向量角度误差 | $0\ \mathrm{rad}$ |
-| SVD 平面质心误差 | $2.77555756156\times10^{-17}\ \mathrm{m}$ |
-| 合成扰动点云最大点面距离 | $1.01234567904\times10^{-4}\ \mathrm{m}$ |
-| 合成扰动点云 RMS 点面距离 | $5.55418364405\times10^{-5}\ \mathrm{m}$ |
-| 最小奇异值与第二奇异值之比 | $2.86816810069\times10^{-4}$ |
-| 平面姿态角误差 | $7.62142028251\times10^{-15}\ \mathrm{rad}$ |
-| 点云刚体变换距离保持误差 | $4.44089209850\times10^{-16}\ \mathrm{m}$ |
+| 300 次 EKF 预测及周期更新后的协方差对称误差 | $`0`$ |
+| 最终协方差最小特征值 | $`1.86875552315\times10^{-6}`$ |
+| 解析观测 Jacobian 与中心差分的最大元素误差 | $`6.72568001292\times10^{-10}`$ |
+| SVD 平面法向量角度误差 | $`0\ \mathrm{rad}`$ |
+| SVD 平面质心误差 | $`2.77555756156\times10^{-17}\ \mathrm{m}`$ |
+| 合成扰动点云最大点面距离 | $`1.01234567904\times10^{-4}\ \mathrm{m}`$ |
+| 合成扰动点云 RMS 点面距离 | $`5.55418364405\times10^{-5}\ \mathrm{m}`$ |
+| 最小奇异值与第二奇异值之比 | $`2.86816810069\times10^{-4}`$ |
+| 平面姿态角误差 | $`7.62142028251\times10^{-15}\ \mathrm{rad}`$ |
+| 点云刚体变换距离保持误差 | $`4.44089209850\times10^{-16}\ \mathrm{m}`$ |
 | 预期拒绝的无效几何输入 | `5 / 5` |
 | MATLAB 源文件数量 | `22` |
 | Code Analyzer 问题数量 | `0` |
@@ -574,11 +574,11 @@ referenceFloorNormalGlobal = [0; 0; 1];
 
 该检查中的真值轨迹和估计过程采用相同的 Euler 运动学与积分器，因此结果用于验证偏置目标函数、缺失观测处理和优化流程的一致性，不构成独立的传感器精度评估。
 
-点云检查在已知平面内生成 $9\times9$ 个采样点，并加入幅值约为 $10^{-4}\ \mathrm m$ 的确定性法向扰动。验证内容包括法向量和质心恢复、宽松与严格距离门限的判定、单平面 roll/pitch 计算、刚体变换的距离保持性质，以及点数不足、共线点集、视点位于平面、零法向量和负距离门限五类失败输入。误差接近机器精度是该确定性构造的结果，不代表真实点云测量精度。
+点云检查在已知平面内生成 $`9\times9`$ 个采样点，并加入幅值约为 $`10^{-4}\ \mathrm m`$ 的确定性法向扰动。验证内容包括法向量和质心恢复、宽松与严格距离门限的判定、单平面 roll/pitch 计算、刚体变换的距离保持性质，以及点数不足、共线点集、视点位于平面、零法向量和负距离门限五类失败输入。误差接近机器精度是该确定性构造的结果，不代表真实点云测量精度。
 
-法向量关联检查从已知非零姿态和指定全局参考方向反向生成局部法向量，再验证坐标变换与关联结果。EKF 检查模拟静止平台和恒定陀螺仪偏置，执行 300 次预测，并每 5 步使用地面或墙面法向量更新。协方差对称误差定义为 $\|P-P^\mathsf T\|_F$；最小特征值为正，说明该次检查中协方差保持正定。
+法向量关联检查从已知非零姿态和指定全局参考方向反向生成局部法向量，再验证坐标变换与关联结果。EKF 检查模拟静止平台和恒定陀螺仪偏置，执行 300 次预测，并每 5 步使用地面或墙面法向量更新。协方差对称误差定义为 $`\|P-P^\mathsf T\|_F`$；最小特征值为正，说明该次检查中协方差保持正定。
 
-解析测量 Jacobian 使用步长 $10^{-7}$ 的中心差分进行独立数值复核。上述数值只验证当前实现的公式一致性和数值性质，不代表实际传感器的物理精度、实时运行速度、任意轨迹性能或公开数据集基准。
+解析测量 Jacobian 使用步长 $`10^{-7}`$ 的中心差分进行独立数值复核。上述数值只验证当前实现的公式一致性和数值性质，不代表实际传感器的物理精度、实时运行速度、任意轨迹性能或公开数据集基准。
 
 ## 运行环境与依赖
 
@@ -598,7 +598,7 @@ referenceFloorNormalGlobal = [0; 0; 1];
 
 ## 局限性
 
-- ZYX Euler 表示在 $\theta=\pm\pi/2$ 附近存在固有奇异性；代码中的余弦限幅只能避免直接除零，不能消除姿态表示退化；
+- ZYX Euler 表示在 $`\theta=\pm\pi/2`$ 附近存在固有奇异性；代码中的余弦限幅只能避免直接除零，不能消除姿态表示退化；
 - SVD 平面拟合采用普通最小二乘准则，对离群点不具备 RANSAC 或鲁棒损失提供的抗干扰能力；
 - 共面性采用调用方指定的最大距离门限，代码不会根据点云尺度、采样密度或传感器噪声自动标定阈值；
 - 法向量符号依赖有效视点先验；视点位于拟合平面时方向不可辨识，单个平面也无法独立确定 yaw；
@@ -609,7 +609,7 @@ referenceFloorNormalGlobal = [0; 0; 1];
 - EKF 偏置状态采用常值模型，预测阶段没有加入独立的偏置过程噪声；
 - EKF 使用 Euler 状态的加法修正，没有采用 quaternion、SO(3) manifold 或 error-state 表示；
 - 平面法向量必须提前确定方向，输入翻转会改变关联结果和 EKF 新息；
-- 平面观测噪声使用 $\sigma_n^2I_3$，无法表示三个分量之间的相关性或各向异性；
+- 平面观测噪声使用 $`\sigma_n^2I_3`$，无法表示三个分量之间的相关性或各向异性；
 - 关联函数使用固定角度门限，EKF 更新内部不执行 Mahalanobis gating、异常值剔除或鲁棒损失处理；
 - 平面法向量观测不会直接修正 bias 分量，偏置通过姿态—偏置协方差的交叉项间接更新；
 - 当前实现没有对真实传感器数据、长时间运行、实时计算负载或极端姿态轨迹进行公开基准测试。

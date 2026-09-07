@@ -81,7 +81,7 @@ ID0 至 ID3 的 marker center 提供四组图像平面与机器人 Base 平面�
 | 0 | -990 | 60 |
 | 2 | -990 | -520 |
 
-对于图像点 $[u,v]$ 和 Base 平面点 $[x_B,y_B]$，projective
+对于图像点 $`[u,v]`$ 和 Base 平面点 $`[x_B,y_B]`$，projective
 transformation 满足
 
 ```math
@@ -100,7 +100,7 @@ v\\
 \end{bmatrix},
 ```
 
-其中 $H$ 为 $3\times3$ Homography matrix，$s$ 为非零尺度因子。估计出的
+其中 $`H`$ 为 $`3\times3`$ Homography matrix，$`s`$ 为非零尺度因子。估计出的
 变换保存在 `scene.imageToBaseTransform` 中。
 
 原始图像同时被投影到固定 Base 工作区：
@@ -123,8 +123,8 @@ v\\
 \qquad i=1,\ldots,4.
 ```
 
-Base 平面位置仍由两条对角线的交点确定。marker 的局部 $+X$ 轴定义为
-$P_1\rightarrow P_2$，因此平面朝向为
+Base 平面位置仍由两条对角线的交点确定。marker 的局部 $`+X`$ 轴定义为
+$`P_1\rightarrow P_2`$，因此平面朝向为
 
 ```math
 \theta=
@@ -202,9 +202,9 @@ R(\theta)=
 
 | 规划输入 | `scene` 来源 | 含义 |
 |---|---|---|
-| 起点 $\boldsymbol p_0$ | `smallItem.position` | 小物体中心的 Base XY 坐标 |
-| 目标 $\boldsymbol g$ | `smallGoal.position` | 由 ID7 和局部 offset 得到的目标点 |
-| 障碍物 $\boldsymbol o_i$ | `obstacles.position` | 全部 ID4 marker 中心 |
+| 起点 $`\boldsymbol p_0`$ | `smallItem.position` | 小物体中心的 Base XY 坐标 |
+| 目标 $`\boldsymbol g`$ | `smallGoal.position` | 由 ID7 和局部 offset 得到的目标点 |
+| 障碍物 $`\boldsymbol o_i`$ | `obstacles.position` | 全部 ID4 marker 中心 |
 | 工作区范围 | `boardReference` | 势场采样和路径边界诊断使用的 Base XY 范围 |
 
 当前规划参数如下，距离单位均为 mm：
@@ -218,12 +218,12 @@ R(\theta)=
 | `attractionSwitchDistance` | 190 | 吸引力分段切换距离 |
 | `attractiveGain` | 2 | 吸引力增益 |
 | `repulsionInfluenceDistance` | 200 | 障碍物排斥作用范围 |
-| `repulsiveGain` | $9\times10^8$ | 排斥力增益 |
+| `repulsiveGain` | $`9\times10^8`$ | 排斥力增益 |
 | `maximumRepulsion` | 550 | 单个障碍物的排斥力上限 |
 
 ### 2. 分段吸引力
 
-对当前位置 $\boldsymbol p$，定义目标方向差和目标距离为
+对当前位置 $`\boldsymbol p`$，定义目标方向差和目标距离为
 
 ```math
 \boldsymbol r=\boldsymbol p-\boldsymbol g,
@@ -240,18 +240,18 @@ R(\theta)=
 \end{cases}
 ```
 
-其中 $k_a=2$，$d_a=190\ \mathrm{mm}$。
+其中 $`k_a=2`$，$`d_a=190\ \mathrm{mm}`$。
 
 ### 3. 有限作用范围排斥力
 
-对第 $i$ 个障碍物，令
+对第 $`i`$ 个障碍物，令
 
 ```math
 \boldsymbol q_i=\boldsymbol p-\boldsymbol o_i,
 \qquad \rho_i=\|\boldsymbol q_i\|.
 ```
 
-当当前位置进入影响距离 $\rho_0=200\ \mathrm{mm}$ 时，该障碍物产生排斥力：
+当当前位置进入影响距离 $`\rho_0=200\ \mathrm{mm}`$ 时，该障碍物产生排斥力：
 
 ```math
 \boldsymbol F_{\mathrm{rep},i}(\boldsymbol p)=
@@ -266,7 +266,7 @@ R(\theta)=
 \end{cases}
 ```
 
-其中 $\eta=9\times10^8$，$F_{\max}=550$。当 $\rho_i\le10^{-9}$ mm 时，
+其中 $`\eta=9\times10^8`$，$`F_{\max}=550`$。当 $`\rho_i\le10^{-9}`$ mm 时，
 排斥方向没有唯一解，当前实现返回零向量。总作用力为
 
 ```math
@@ -281,7 +281,7 @@ R(\theta)=
 
 ### 4. 平滑路径迭代与终止条件
 
-设固定目标步长为 $s=5\ \mathrm{mm}$，首先沿总作用力方向计算目标位移：
+设固定目标步长为 $`s=5\ \mathrm{mm}`$，首先沿总作用力方向计算目标位移：
 
 ```math
 \Delta\boldsymbol p_k^{*}
@@ -299,7 +299,7 @@ R(\theta)=
 \boldsymbol p_{k+1}=\boldsymbol p_k+\Delta\boldsymbol p_k,
 ```
 
-其中 $\alpha=0.4$，初始位移为零。该递推使路径段长度不超过 5 mm。当路径
+其中 $`\alpha=0.4`$，初始位移为零。该递推使路径段长度不超过 5 mm。当路径
 进入目标点 5 mm 邻域时，规划器将最后一点精确设置为目标。规划结果只使用
 以下三种停止状态：
 
@@ -336,7 +336,7 @@ R(\theta)=
 \begin{bmatrix}x & y & \theta\end{bmatrix},
 ```
 
-其中 $[x,y]$ 为 Base 平面中心位置，$\theta$ 为大物体朝向。规划器使用
+其中 $`[x,y]`$ 为 Base 平面中心位置，$`\theta`$ 为大物体朝向。规划器使用
 `180 x 90 mm` 的矩形模型，其四个局部角点为
 
 ```math
@@ -346,7 +346,7 @@ R(\theta)=
 \right\}.
 ```
 
-给定位姿 $\boldsymbol q$，第 $j$ 个角点在 Base 坐标系中的位置为
+给定位姿 $`\boldsymbol q`$，第 $`j`$ 个角点在 Base 坐标系中的位置为
 
 ```math
 \boldsymbol c_j(\boldsymbol q)
@@ -379,7 +379,7 @@ APF 规划器保留已验证的中心力、角点力和避障力矩递推。中�
 ```
 
 四个角点分别计算有限作用范围排斥力
-$\boldsymbol F_{\mathrm{corner},j}$。平移合力使用四角排斥力的平均值：
+$`\boldsymbol F_{\mathrm{corner},j}`$。平移合力使用四角排斥力的平均值：
 
 ```math
 \boldsymbol F_{\mathrm{total}}
@@ -389,7 +389,7 @@ $\boldsymbol F_{\mathrm{corner},j}$。平移合力使用四角排斥力的平均
 ```
 
 设角点相对中心的力臂为
-$\boldsymbol r_j=\boldsymbol c_j-\boldsymbol p$，二维叉积产生避障力矩：
+$`\boldsymbol r_j=\boldsymbol c_j-\boldsymbol p`$，二维叉积产生避障力矩：
 
 ```math
 \tau_{\mathrm{rep}}
@@ -407,7 +407,7 @@ $\boldsymbol r_j=\boldsymbol c_j-\boldsymbol p$，二维叉积产生避障力矩
 w(d)=\mathrm{clip}\left(1-\frac{d}{100},0,1\right).
 ```
 
-最终力矩为 $\tau_{\mathrm{rep}}+\tau_{\mathrm{goal}}$。平移和旋转增量分别使用
+最终力矩为 $`\tau_{\mathrm{rep}}+\tau_{\mathrm{goal}}`$。平移和旋转增量分别使用
 0.5 的一阶滤波；正常迭代的最大平移步长为 5 mm，最大角度步长为 3 degree。
 进入 5 mm 目标邻域后，规划器精确写入目标位置和朝向，因此最后一个目标
 对齐点不受 3 degree 迭代上限约束。规划状态只使用 `goal_reached`、
@@ -441,7 +441,7 @@ r_c|\Delta\theta|
 启发函数采用当前位置到目标的同形式下界。每条搜索边都按
 `2.5 mm / 1.5 degree` 插值，并在每个插值位姿验证工作区、中心距离和四角
 距离。搜索采用自定义二叉最小堆管理 open set，并通过连续角度展开避免
-$-\pi$ 与 $\pi$ 边界造成不必要的朝向跳变。
+$`-\pi`$ 与 $`\pi`$ 边界造成不必要的朝向跳变。
 
 ### 4. 安全路径平滑
 
@@ -571,14 +571,14 @@ marker 的真实平面位置。
 ```
 
 桌面 Homography 给出的角点为
-$\boldsymbol P_0=[P_{0,x},P_{0,y},0]^{\mathsf T}$，ID8 所在平面的已知高度为
-$h=90\ \mathrm{mm}$。同一条相机射线可以写为
+$`\boldsymbol P_0=[P_{0,x},P_{0,y},0]^{\mathsf T}`$，ID8 所在平面的已知高度为
+$`h=90\ \mathrm{mm}`$。同一条相机射线可以写为
 
 ```math
 \boldsymbol P(t)=\boldsymbol C+t(\boldsymbol P_0-\boldsymbol C).
 ```
 
-令其 Z 分量等于 $h$，可得
+令其 Z 分量等于 $`h`$，可得
 
 ```math
 \lambda=\frac{C_z-h}{C_z},
@@ -607,7 +607,7 @@ ID8 修正后的位姿表示为
 ```
 
 槽入口在 ID8 局部平面内使用固定 offset
-$\boldsymbol d_{\mathrm{slot}}=[0,-80]^{\mathsf T}\ \mathrm{mm}$，其 Base
+$`\boldsymbol d_{\mathrm{slot}}=[0,-80]^{\mathsf T}\ \mathrm{mm}`$，其 Base
 位置和朝向为
 
 ```math
@@ -1005,7 +1005,7 @@ README 不提供固定机器人 IP 或自动建立连接的启动脚本，避免
 表格用于记录当前实现的可追溯数值结果，而不是公开数据集基准。表中位置单位为
 mm，角度为便于阅读由代码输出的 rad 转换为 degree。
 
-| 场景元素 | Base X | Base Y | $\theta$ (deg) |
+| 场景元素 | Base X | Base Y | $`\theta`$ (deg) |
 |---|---:|---:|---:|
 | 障碍物 1（ID4） | -780.6902 | -138.8407 | 68.6744 |
 | 障碍物 2（ID4） | -565.4913 | -318.8583 | -164.4122 |
@@ -1021,9 +1021,9 @@ mm，角度为便于阅读由代码输出的 rad 转换为 degree。
 
 | 场景 | 检测 marker 数 | ID4 数量 | ID6 数量 | Reference 最大映射误差 |
 |---|---:|---:|---:|---:|
-| example 1 | 10 | 2 | 2 | $6.43\times10^{-13}$ mm |
-| example 2 | 10 | 2 | 2 | $3.41\times10^{-13}$ mm |
-| example 3 | 11 | 2 | 2 | $4.56\times10^{-13}$ mm |
+| example 1 | 10 | 2 | 2 | $`6.43\times10^{-13}`$ mm |
+| example 2 | 10 | 2 | 2 | $`3.41\times10^{-13}`$ mm |
+| example 3 | 11 | 2 | 2 | $`4.56\times10^{-13}`$ mm |
 
 `example_3` 中检测到两个 ID0，代码按 polygon 面积选择较大的实例。三个
 场景均生成 `680 x 860 x 3` 的 Base 俯视图；marker 位姿与原始场景定位
@@ -1040,9 +1040,9 @@ mm，角度为便于阅读由代码输出的 rad 转换为 degree。
 
 | 场景 | 迭代次数 | 路径点数 | 终点误差 | 最小障碍物中心距离 | 最大步长 |
 |---|---:|---:|---:|---:|---:|
-| example 1 | 92 | 94 | 0 mm | 113.946 mm | $\le5$ mm |
-| example 2 | 139 | 141 | 0 mm | 102.819 mm | $\le5$ mm |
-| example 3 | 63 | 65 | 0 mm | 136.391 mm | $\le5$ mm |
+| example 1 | 92 | 94 | 0 mm | 113.946 mm | $`\le5`$ mm |
+| example 2 | 139 | 141 | 0 mm | 102.819 mm | $`\le5`$ mm |
+| example 3 | 63 | 65 | 0 mm | 136.391 mm | $`\le5`$ mm |
 
 固定工作区和 20 mm 网格间距生成 `35 x 44` 的 `X/Y/U/V` 矩阵。三个场景
 的规划路径与原始 APF 递推公式逐点重算结果一致，路径坐标最大差异为零；在
@@ -1106,7 +1106,7 @@ TCP 目标、`v=0.6` 参数和调用顺序，并完成上述公式与 mock 回�
 也不声称完成了可公开复现的 ID8 图像回归。高度修正采用独立可逆几何测试：
 先从已知 `Z=90 mm` 角点沿相机射线计算其 `Z=0` 交点，再通过代码恢复到已知
 高度平面。四个角点的最大恢复误差为
-$2.84\times10^{-14}\ \mathrm{mm}$，projective center 和 `P1->P2` 朝向在浮点
+$`2.84\times10^{-14}\ \mathrm{mm}`$，projective center 和 `P1->P2` 朝向在浮点
 精度内恢复一致。fabricated marker 检测数据还覆盖了重复 reference 选择、多个
 ID4、缺失 ID8 和非法相机高度等输入分支。
 

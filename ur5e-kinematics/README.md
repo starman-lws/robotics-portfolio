@@ -24,40 +24,40 @@
 {}^0T_6 = {}^0T_1{}^1T_2{}^2T_3{}^3T_4{}^4T_5{}^5T_6,
 ```
 
-同时记录 $p_0$ 至 $p_6$ 的 frame origin，用于后续工作空间与碰撞检查。
+同时记录 $`p_0`$ 至 $`p_6`$ 的 frame origin，用于后续工作空间与碰撞检查。
 
-| 关节 $i$ | $d_i$ (m) | $a_i$ (m) | $\alpha_i$ (rad) |
+| 关节 $`i`$ | $`d_i`$ (m) | $`a_i`$ (m) | $`\alpha_i`$ (rad) |
 |---:|---:|---:|---:|
-| 1 | 0.1625 | 0 | $\pi/2$ |
+| 1 | 0.1625 | 0 | $`\pi/2`$ |
 | 2 | 0 | -0.4250 | 0 |
 | 3 | 0 | -0.3922 | 0 |
-| 4 | 0.1333 | 0 | $\pi/2$ |
-| 5 | 0.0997 | 0 | $-\pi/2$ |
+| 4 | 0.1333 | 0 | $`\pi/2`$ |
+| 5 | 0.0997 | 0 | $`-\pi/2`$ |
 | 6 | 0.0996 | 0 | 0 |
 
 ### 2. Rotation vector 转换
 
-末端旋转矩阵 $R$ 通过
+末端旋转矩阵 $`R`$ 通过
 
 ```math
 \theta = \cos^{-1}\left(\mathrm{clip}\left(\frac{\mathrm{tr}(R)-1}{2},-1,1\right)\right)
 ```
 
-转换为 rotation vector $\boldsymbol r=\theta\boldsymbol u$。实现中分别处理以下情况：
+转换为 rotation vector $`\boldsymbol r=\theta\boldsymbol u`$。实现中分别处理以下情况：
 
-- $\theta\approx0$：直接返回零向量；
-- $0<\theta<\pi$：利用 $R-R^\mathsf{T}$ 恢复旋转轴；
-- $\theta\approx\pi$：利用 $(R+I)/2=\boldsymbol u\boldsymbol u^\mathsf{T}$ 恢复旋转轴，避免除以接近零的 $\sin\theta$。
+- $`\theta\approx0`$：直接返回零向量；
+- $`0<\theta<\pi`$：利用 $`R-R^\mathsf{T}`$ 恢复旋转轴；
+- $`\theta\approx\pi`$：利用 $`(R+I)/2=\boldsymbol u\boldsymbol u^\mathsf{T}`$ 恢复旋转轴，避免除以接近零的 $`\sin\theta`$。
 
 ### 3. 工作空间安全平面
 
-工作空间检查覆盖 $p_1$ 至 $p_6$，并要求所有 frame origin 位于三个安全平面的有效侧：
+工作空间检查覆盖 $`p_1`$ 至 $`p_6`$，并要求所有 frame origin 位于三个安全平面的有效侧：
 
 | 安全边界 | 有效区域 |
 |---|---|
-| 工作台平面 | $z>0$ |
-| 后侧平面 | $y<0.3\ \mathrm{m}$ |
-| 侧向平面 | $x<0.3\ \mathrm{m}$ |
+| 工作台平面 | $`z>0`$ |
+| 后侧平面 | $`y<0.3\ \mathrm{m}`$ |
+| 侧向平面 | $`x<0.3\ \mathrm{m}`$ |
 
 位于边界上的点同样判定为无效。
 
@@ -76,7 +76,7 @@ t=\mathrm{clip}\left(
 
 若最近点与球心的距离不大于球体半径，则判定为碰撞；相切也计为碰撞。
 
-对于轴对齐立方体，将其表示为 AABB，并使用 slab method 逐轴更新线段参数区间 $[t_{\min},t_{\max}]$。若三个轴对应区间的交集非空，则线段与 AABB 相交。
+对于轴对齐立方体，将其表示为 AABB，并使用 slab method 逐轴更新线段参数区间 $`[t_{\min},t_{\max}]`$。若三个轴对应区间的交集非空，则线段与 AABB 相交。
 
 ## 代码结构
 
@@ -84,7 +84,7 @@ t=\mathrm{clip}\left(
 |---|---|
 | [`ur5e_forward_kinematics.m`](src/ur5e_forward_kinematics.m) | 组织 UR5e 正运动学、工作空间检查和障碍物碰撞检查 |
 | [`dh_transform.m`](src/dh_transform.m) | 根据一行标准 DH 参数构造齐次变换矩阵 |
-| [`rotation_matrix_to_rotvec.m`](src/rotation_matrix_to_rotvec.m) | 将旋转矩阵转换为 rotation vector，并处理 $0$ 和 $\pi$ 附近的特殊情况 |
+| [`rotation_matrix_to_rotvec.m`](src/rotation_matrix_to_rotvec.m) | 将旋转矩阵转换为 rotation vector，并处理 $`0`$ 和 $`\pi`$ 附近的特殊情况 |
 | [`check_workspace.m`](src/check_workspace.m) | 检查各 frame origin 是否位于安全平面的有效侧 |
 | [`segment_sphere_collision.m`](src/segment_sphere_collision.m) | 检查三维线段与球体是否相交或相切 |
 | [`segment_aabb_collision.m`](src/segment_aabb_collision.m) | 使用 slab method 检查三维线段与 AABB 是否相交 |
@@ -157,7 +157,7 @@ ok = 1
 
 ### 1. 几何 Jacobian
 
-正运动学连乘得到的累计变换同时给出各 frame origin $\boldsymbol o_i$ 和关节轴 $\boldsymbol z_i$，并统一在 base frame 中表达。UR5e 的六个关节均为转动关节，因此第 $i$ 列为
+正运动学连乘得到的累计变换同时给出各 frame origin $`\boldsymbol o_i`$ 和关节轴 $`\boldsymbol z_i`$，并统一在 base frame 中表达。UR5e 的六个关节均为转动关节，因此第 $`i`$ 列为
 
 ```math
 J_i=
@@ -177,11 +177,11 @@ J_v\\J_\omega
 \end{bmatrix}.
 ```
 
-$J_v$ 的长度单位采用 metre，$J_\omega$ 为无量纲映射。
+$`J_v`$ 的长度单位采用 metre，$`J_\omega`$ 为无量纲映射。
 
 ### 2. 数值奇异性指标
 
-设 $J$ 的奇异值为 $\sigma_1\geq\cdots\geq\sigma_6\geq0$。实现同时给出 determinant、最小奇异值、数值秩、condition number 和 Yoshikawa manipulability：
+设 $`J`$ 的奇异值为 $`\sigma_1\geq\cdots\geq\sigma_6\geq0`$。实现同时给出 determinant、最小奇异值、数值秩、condition number 和 Yoshikawa manipulability：
 
 ```math
 w(\boldsymbol q)
@@ -189,7 +189,7 @@ w(\boldsymbol q)
 =\sqrt{\det\!\left(JJ^\mathsf T\right)}.
 ```
 
-当 $\sigma_{\min}$ 或 $w(\boldsymbol q)$ 接近零时，Jacobian 接近秩亏。数值秩采用调用方提供的 tolerance；默认值为 `1e-3`。manipulability 通过奇异值乘积计算，避免直接计算行列式时出现微小负数舍入误差。
+当 $`\sigma_{\min}`$ 或 $`w(\boldsymbol q)`$ 接近零时，Jacobian 接近秩亏。数值秩采用调用方提供的 tolerance；默认值为 `1e-3`。manipulability 通过奇异值乘积计算，避免直接计算行列式时出现微小负数舍入误差。
 
 ### 3. 解析奇异因子
 
@@ -207,7 +207,7 @@ s_{\mathrm{elbow}}=\sin q_3,
 s_{\mathrm{wrist}}=\sin q_5.
 ```
 
-$s_{\mathrm{shoulder}}$ 的单位为 metre，另外两个因子无量纲。函数返回保留符号的连续数值，不使用固定阈值直接给配置贴上 singular 或 non-singular 标签。
+$`s_{\mathrm{shoulder}}`$ 的单位为 metre，另外两个因子无量纲。函数返回保留符号的连续数值，不使用固定阈值直接给配置贴上 singular 或 non-singular 标签。
 
 ### 4. 接口说明
 
@@ -241,11 +241,11 @@ wristMetrics = ur5e_singularity_metrics(qWrist);
 shoulderMetrics = ur5e_singularity_metrics(qShoulder);
 ```
 
-| 配置 | $w(\boldsymbol q)$ | $\sigma_{\min}$ | $\mathrm{rank}_{10^{-3}}(J)$ | 关键解析因子 |
+| 配置 | $`w(\boldsymbol q)`$ | $`\sigma_{\min}`$ | $`\mathrm{rank}_{10^{-3}}(J)`$ | 关键解析因子 |
 |---|---:|---:|---:|---:|
-| 参考配置 | $1.774522\times10^{-3}$ | $3.624733\times10^{-2}$ | 6 | -- |
-| 接近 wrist singularity | $1.405352\times10^{-5}$ | $8.650318\times10^{-5}$ | 5 | $s_{\mathrm{wrist}}=0.00313461$ |
-| 接近 shoulder singularity | $5.664974\times10^{-5}$ | $3.180169\times10^{-4}$ | 5 | $s_{\mathrm{shoulder}}=-0.000490341\ \mathrm m$ |
+| 参考配置 | $`1.774522\times10^{-3}`$ | $`3.624733\times10^{-2}`$ | 6 | -- |
+| 接近 wrist singularity | $`1.405352\times10^{-5}`$ | $`8.650318\times10^{-5}`$ | 5 | $`s_{\mathrm{wrist}}=0.00313461`$ |
+| 接近 shoulder singularity | $`5.664974\times10^{-5}`$ | $`3.180169\times10^{-4}`$ | 5 | $`s_{\mathrm{shoulder}}=-0.000490341\ \mathrm m`$ |
 
 下图给出两组近奇异关节配置的 URSim 几何形态。界面中的 TCP 数值使用 `View` feature；本仓库的算法诊断只使用右侧显示的关节配置，并在标准 DH base frame 下构造 Jacobian。
 
@@ -323,15 +323,15 @@ A_2(q_2)A_3(90^\circ)A_4(q_4)
 
 ### 等效五行 DH 表
 
-函数仍接收完整六关节向量，但第三个关节仅用于确认其保持在 $90^\circ$。五个可控关节按照 $[q_1,q_2,q_4,q_5,q_6]$ 映射到等效模型：
+函数仍接收完整六关节向量，但第三个关节仅用于确认其保持在 $`90^\circ`$。五个可控关节按照 $`[q_1,q_2,q_4,q_5,q_6]`$ 映射到等效模型：
 
-| 等效关节 | 原物理关节 | $\theta_i$ | $d_i$ (m) | $a_i$ (m) | $\alpha_i$ |
+| 等效关节 | 原物理关节 | $`\theta_i`$ | $`d_i`$ (m) | $`a_i`$ (m) | $`\alpha_i`$ |
 |---:|---:|---:|---:|---:|---:|
-| 1 | $q_1$ | $q_1$ | 0.1625 | 0 | $\pi/2$ |
-| 2 | $q_2$ | $q_2+\beta$ | 0 | -0.578312926 | 0 |
-| 3 | $q_4$ | $q_4+\delta$ | 0.1333 | 0 | $\pi/2$ |
-| 4 | $q_5$ | $q_5$ | 0.0997 | 0 | $-\pi/2$ |
-| 5 | $q_6$ | $q_6$ | 0.0996 | 0 | 0 |
+| 1 | $`q_1`$ | $`q_1`$ | 0.1625 | 0 | $`\pi/2`$ |
+| 2 | $`q_2`$ | $`q_2+\beta`$ | 0 | -0.578312926 | 0 |
+| 3 | $`q_4`$ | $`q_4+\delta`$ | 0.1333 | 0 | $`\pi/2`$ |
+| 4 | $`q_5`$ | $`q_5`$ | 0.0997 | 0 | $`-\pi/2`$ |
+| 5 | $`q_6`$ | $`q_6`$ | 0.0996 | 0 | 0 |
 
 ### 接口说明
 
@@ -340,12 +340,12 @@ dhTable = ur5e_locked_elbow_dh(q);
 [T05, eePose] = ur5e_locked_elbow_forward_kinematics(q);
 ```
 
-- `q`：`1x6` 或 `6x1` 关节角向量，单位为 degree；$q_3$ 必须在 `1e-6 degree` 容差内等于 $90^\circ$。
+- `q`：`1x6` 或 `6x1` 关节角向量，单位为 degree；$`q_3`$ 必须在 `1e-6 degree` 容差内等于 $`90^\circ`$。
 - `dhTable`：`5x4` 等效标准 DH 参数矩阵，每行为 `[theta,d,a,alpha]`，角度单位为 radian，长度单位为 metre。
 - `T05`：等效第五个 frame 相对于 base frame 的齐次变换矩阵。
 - `eePose`：`[x,y,z,rx,ry,rz]`，位置单位为 millimetre，rotation vector 单位为 radian。
 
-输入元素数量错误、包含非有限数值，或 $q_3$ 未固定在 $90^\circ$ 时，函数会抛出明确错误。
+输入元素数量错误、包含非有限数值，或 $`q_3`$ 未固定在 $`90^\circ`$ 时，函数会抛出明确错误。
 
 ### 使用示例与数值结果
 
@@ -375,7 +375,7 @@ eePose = [-681.001368, 190.615547, 225.122643,
            0.239939,  -0.215794,  -0.272416]
 ```
 
-对于该配置，等效五关节变换与原六关节 DH 连乘结果的最大元素误差为 $1.11\times10^{-16}$。在多组 $q_3=90^\circ$ 的配置中进行比较，最大元素误差为 $2.22\times10^{-16}$，属于双精度浮点舍入范围。
+对于该配置，等效五关节变换与原六关节 DH 连乘结果的最大元素误差为 $`1.11\times10^{-16}`$。在多组 $`q_3=90^\circ`$ 的配置中进行比较，最大元素误差为 $`2.22\times10^{-16}`$，属于双精度浮点舍入范围。
 
 ### 独立模型可视化
 
@@ -402,5 +402,5 @@ eePose = [-681.001368, 190.615547, 225.122643,
 - Jacobian 同时包含 metre 尺度的线速度行和无量纲的角速度行，因此绝对 manipulability 和 condition number 仅应在相同单位约定下比较；
 - 数值秩结果依赖 tolerance，默认 `1e-3` 用于识别近奇异而非严格符号秩；
 - 奇异性模块只诊断离散静态配置，不执行奇异规避或连续轨迹规划；
-- 等效五自由度模型只适用于原第三关节固定在 $90^\circ$ 的情况，不推广到其他锁定角；
+- 等效五自由度模型只适用于原第三关节固定在 $`90^\circ`$ 的情况，不推广到其他锁定角；
 - 当前实现只包含几何运动学，不包含动力学、轨迹规划或控制器设计。
