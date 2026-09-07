@@ -1,0 +1,26 @@
+# Build and local workspace artifacts
+**/__pycache__/
+*.py[cod]
+**/.pio/
+**/build/
+**/install/
+**/log/
+**/.vscode/
+**/.idea/
+node_modules/
+*.o
+*.obj
+*.elf
+*.bin
+*.a
+*.log
+*.bag
+*.db3
+.DS_Store
+Thumbs.db
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
